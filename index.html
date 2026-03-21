@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #a855f7;
+      --bg: #030712;
+      --card-bg: rgba(15, 23, 42, 0.7);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+    
+    html, body { overflow-x: hidden; max-width: 100%; }
+    body { background: var(--bg); color: var(--text); }
+
+    /* # Arka Plan Parallax Küreleri */
+    .bg-blobs { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+    .blob { position: absolute; width: 500px; height: 500px; background: linear-gradient(var(--primary), var(--secondary)); filter: blur(100px); opacity: 0.12; border-radius: 50%; }
+
+    /* # Yan Menü Navigasyonu */
+    .sidebar {
+      width: 280px; height: 100vh; background: var(--card-bg); backdrop-filter: blur(25px);
+      border-right: 1px solid rgba(255,255,255,0.1); position: fixed; left: 0; top: 0; padding: 40px 20px;
+      display: flex; flex-direction: column; justify-content: space-between; z-index: 100;
+    }
+    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+    .nav-links { list-style: none; margin-top: 50px; }
+    .nav-links li { margin-bottom: 10px; }
+    .nav-links a { color: var(--muted); text-decoration: none; padding: 12px 20px; display: block; border-radius: 12px; transition: 0.3s; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { background: rgba(99, 102, 241, 0.1); color: var(--primary); transform: translateX(5px); }
+
+    /* # Ana İçerik ve Dikey Kaydırma */
+    main { margin-left: 280px; padding: 60px; }
+    section { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; justify-content: center; }
+    .gradient-text { background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* # Projeler Menüsü (8: 3D Tilt Effect) */
+    .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; perspective: 1000px; }
+    .project-card {
+      background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px; padding: 35px; transition: transform 0.1s ease-out, box-shadow 0.3s, border-color 0.3s;
+      transform-style: preserve-3d; cursor: pointer; position: relative;
+    }
+    .project-card:hover { box-shadow: 0 25px 50px rgba(0,0,0,0.5); border-color: var(--primary); }
+    .project-card h3 { font-size: 1.6rem; margin: 15px 0 10px 0; transform: translateZ(30px); }
+    .project-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; transform: translateZ(20px); }
+
+    /* # Teknoloji Stack Kaydırağı (3: Logo Carousel) */
+    .tech-slider { overflow: hidden; padding: 40px 0; background: rgba(255,255,255,0.02); margin-top: 30px; border-radius: 20px; white-space: nowrap; }
+    .tech-track { display: inline-block; animation: scroll 25s linear infinite; }
+    .tech-item { display: inline-block; margin: 0 45px; color: var(--muted); font-weight: 800; font-size: 1.3rem; opacity: 0.4; transition: 0.3s; }
+    .tech-item:hover { color: var(--primary); opacity: 1; transform: scale(1.1); }
+    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* # Referanslar (6: Testimonials) */
+    .testimonial-slider { display: flex; gap: 30px; overflow-x: auto; padding: 20px 5px 40px 5px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .testimonial-slider::-webkit-scrollbar { display: none; }
+    .testimonial-card {
+      min-width: 420px; background: var(--card-bg); backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 35px;
+      scroll-snap-align: start; transition: 0.4s;
+    }
+    .testimonial-card:hover { border-color: var(--secondary); background: rgba(168, 85, 247, 0.05); transform: translateY(-5px); }
+    .client-info { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .client-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--primary), var(--secondary)); display: grid; place-items: center; font-weight: 800; color: white; }
+
+    /* # Proje Detay & Kod Önizleme (7: Code Preview) */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 1000; display: none; place-items: center; opacity: 0; transition: 0.3s; }
+    .modal-overlay.open { display: grid; opacity: 1; }
+    .modal-content {
+      background: var(--bg); border: 1px solid rgba(255,255,255,0.1); width: min(1100px, 95%);
+      border-radius: 35px; padding: 50px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; transform: scale(0.9); transition: 0.3s;
+    }
+    .modal-overlay.open .modal-content { transform: scale(1); }
+    .code-window {
+      background: #0d1117; border-radius: 20px; padding: 25px; font-family: 'Fira Code', monospace;
+      font-size: 0.9rem; border: 1px solid #30363d; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden;
+    }
+    .code-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+    .code-keyword { color: #ff7b72; } .code-text { color: #79c0ff; } .code-func { color: #d2a8ff; } .code-comment { color: #8b949e; }
+
+    /* # İletişim Bölümü */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; }
+    .input-field { width: 100%; padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; color: white; margin-bottom: 20px; outline: none; transition: 0.3s; }
+    .input-field:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
+    .submit-btn { background: var(--primary); color: white; border: none; padding: 18px 45px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%; }
+    .submit-btn:hover { background: var(--secondary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+
+    /* Sosyal Medya */
+    .social-links { display: flex; gap: 15px; }
+    .social-item svg { width: 22px; height: 22px; fill: var(--muted); transition: 0.3s; }
+    .social-item:hover svg { fill: var(--primary); transform: scale(1.2); }
+  </style>
+</head>
+<body>
+
+  <div class="bg-blobs">
+    <div class="blob" id="blob1" style="top: -5%; left: 20%;"></div>
+    <div class="blob" id="blob2" style="bottom: 0%; right: 0%; background: var(--secondary);"></div>
+  </div>
+
+  <nav class="sidebar">
+    <div class="logo">SAMET<span class="gradient-text">ERTURK</span></div>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Ana Sayfa</a></li>
+      <li><a href="#projects">Projelerim</a></li>
+      <li><a href="#stats">Teknolojiler</a></li>
+      <li><a href="#testimonials">Referanslar</a></li>
+      <li><a href="#contact">İletişim</a></li>
+    </ul>
+    <div class="social-links">
+      <a href="https://www.instagram.com/sameterturk4/" class="social-item"><svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-115.1 51.5-115.1 115.1s51.5 115.1 115.1 115.1c63.6 0 115.1-51.5 115.1-115.1S287.7 141 224.1 141zm0 189.9c-41.2 0-74.8-33.6-74.8-74.8s33.6-74.8 74.8-74.8 74.8 33.6 74.8 74.8-33.6 74.8-74.8 74.8zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.8 9.9 67.6 36.1 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.9 0-184.9zm-35.4 235.7c-7.7 20.3-21.2 36.1-41.5 43.8-31 12.3-104.5 9.5-138.6 9.5s-107.6 2.7-138.6-9.5c-20.3-7.7-36.1-21.2-43.8-41.5-12.3-31-9.5-104.5-9.5-138.6s-2.7-107.6 9.5-138.6c7.7-20.3 21.2-36.1 41.5-43.8 31-12.3 104.5-9.5 138.6-9.5s107.6-2.7 138.6 9.5c20.3 7.7 36.1 21.2 43.8 41.5 12.3 31 9.5 104.5 9.5 138.6s2.7 107.6-9.5 138.6z"/></svg></a>
+      <a href="https://github.com/s4meterturk" class="social-item"><svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm125.7-120.6c-17.6 0-32.9 13.9-32.9 34.3 0 20.3 14.9 34.3 32.9 34.3 18 0 32.9-14 32.9-34.3-.1-20.4-15-34.3-32.9-34.3zM496 256C496 114.6 381.4 0 240 0S0 114.6 0 256c0 102.4 60.2 190.5 147.1 230.9 12.3 2.2 16.8-5.3 16.8-11.7 0-5.9-.2-21.6-.3-42.3-60.5 13.9-73.4-29.2-73.4-29.2-9.9-25.1-24.1-31.7-24.1-31.7-19.8-13.6 1.5-13.3 1.5-13.3 21.8 1.5 33.3 22.4 33.3 22.4 19.5 33.3 51.2 23.7 63.7 18.1 2-14.2 7.8-23.7 14.1-29.1-48.3-5.5-99-24.1-99-107.4 0-23.7 8.5-43.1 22.4-58.2-2.2-5.5-9.7-27.7 2.2-57.5 0 0 18.2-5.8 59.7 22.2 17.3-4.8 35.8-7.3 54.1-7.4 18.2.1 36.7 2.6 54.1 7.4 41.5-28 59.7-22.2 59.7-22.2 11.9 29.8 4.4 52 2.2 57.5 14.1 15.1 22.4 34.5 22.4 58.2 0 83.4-50.8 101.8-100 107.3 8.8 7.6 16.6 22.8 16.6 46 0 33.2-.3 59.9-.3 68 0 6.4 4.5 13.9 17 11.6C435.7 446.5 496 358.3 496 256z"/></svg></a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="home">
+      <h1 style="font-size: 5rem; font-weight: 800; line-height: 1;">YENİ<br><span class="gradient-text">PROJELER</span></h1>
+      <p style="color: var(--muted); margin-top: 30px; max-width: 600px; font-size: 1.2rem;">20 yaşında meraklı bir üniversite öğrencisisi.</p>
+    </section>
+
+    <section id="projects">
+      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">Seçili Projeler</h2>
+      <div class="project-grid">
+        <div class="project-card" onclick="openModal('p1')">
+          <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px;">WEB APP • 2026</span>
+          <h3>Todo-app</h3>
+          <p>"Kullanıcı deneyimi odaklı, yerel depolama (LocalStorage) entegrasyonuna sahip ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi."</p>
+          <div style="margin-top: 20px; color: var(--primary); font-weight: 600;">İncele ↗</div>
+        </div>
+        <div class="project-card" onclick="openModal('p2')">
+          <span style="color: var(--secondary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px;">???</span>
+          <h3>Yakında</h3>
+          <p>???</p>
+          <div style="margin-top: 20px; color: var(--secondary); font-weight: 600;">İncele ↗</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats">
+      <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Teknoloji Stack</h2>
+      <div class="tech-slider">
+        <div class="tech-track">
+          <span class="tech-item">REACT</span><span class="tech-item">NEXT.JS</span><span class="tech-item">NODE.JS</span>
+          <span class="tech-item">TYPESCRIPT</span><span class="tech-item">PYTHON</span><span class="tech-item">FIGMA</span>
+          <span class="tech-item">MONGODB</span><span class="tech-item">DOCKER</span><span class="tech-item">TAILWIND</span>
+          <span class="tech-item">REACT</span><span class="tech-item">NEXT.JS</span><span class="tech-item">NODE.JS</span>
+          <span class="tech-item">TYPESCRIPT</span><span class="tech-item">PYTHON</span><span class="tech-item">FIGMA</span>
+          <span class="tech-item">MONGODB</span><span class="tech-item">DOCKER</span><span class="tech-item">TAILWIND</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="testimonials">
+      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">Referanslar</h2>
+      <div class="testimonial-slider">
+        <div class="testimonial-card">
+          <div class="client-info">
+            <div class="client-avatar">AA</div>
+            <div><h4>Ahmet Aksoy</h4><span style="font-size:0.8rem; color:var(--primary);">CEO @ TechNova</span></div>
+          </div>
+          <p style="font-style:italic; color:var(--muted);">"Teslim edilen projenin kalitesi ve hızı bizi gerçekten etkiledi. Modern bir vizyonla çalışmak harikaydı."</p>
+        </div>
+        <div class="testimonial-card">
+          <div class="client-info">
+            <div class="client-avatar">SY</div>
+            <div><h4>Selin Yılmaz</h4><span style="font-size:0.8rem; color:var(--secondary);">Product Lead @ CreativeLab</span></div>
+          </div>
+          <p style="font-style:italic; color:var(--muted);">"Kullanıcı deneyimi konusundaki hassasiyeti projemizin başarısında anahtar rol oynadı. Kesinlikle öneririm."</p>
+        </div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.85rem; margin-top: 15px;">← Yana Kaydırılabilir →</p>
+    </section>
+
+    <section id="contact">
+      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">İletişime Geç</h2>
+      <div class="contact-grid">
+        <div class="glass-card" style="background: rgba(255,255,255,0.02); padding: 40px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);">
+          <h3>Kısaca,</h3>
+          <p style="color: var(--muted); margin: 25px 0;">Full Stack Developer</p>
+          <p>📧 s4meterturk@gmail.com</p>
+          <p>📍 Manisa / Türkiye</p>
+        </div>
+        <form onsubmit="event.preventDefault(); alert('Mesaj iletildi!');">
+          <input type="text" class="input-field" placeholder="Adınız Soyadınız" required>
+          <input type="email" class="input-field" placeholder="E-posta Adresiniz" required>
+          <textarea class="input-field" placeholder="Mesajınızı yazın..." rows="5" required></textarea>
+          <button type="submit" class="submit-btn">Mesajı Gönder 🚀</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div>
+        <button onclick="closeModal()" style="background: none; border: none; color: var(--muted); cursor: pointer; margin-bottom: 25px; font-weight: 600;">← KAPAT</button>
+        <h2 id="modalTitle" style="font-size: 3rem; margin-bottom: 20px;">Başlık</h2>
+        <p id="modalDesc" style="color: var(--muted); line-height: 1.8; font-size: 1.1rem;"></p>
+      </div>
+      <div class="code-window">
+        <div style="margin-bottom: 20px;">
+          <span class="code-dot" style="background: #ff5f56;"></span>
+          <span class="code-dot" style="background: #ffbd2e;"></span>
+          <span class="code-dot" style="background: #27c93f;"></span>
+        </div>
+        <div style="color: #8b949e; margin-bottom: 10px;">// Project Source Preview</div>
+        <div id="codeSnippet">
+          <span class="code-keyword">const</span> <span style="color: #d2a8ff;">Project</span> = () => {<br>
+          &nbsp;&nbsp;<span class="code-keyword">return</span> (<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="code-func">div</span> className=<span class="code-text">"container"</span>&gt;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="code-func">Header</span> title={<span class="code-text">'Live'</span>} /&gt;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="code-func">div</span>&gt;<br>
+          &nbsp;&nbsp;);<br>
+          };
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // # 8: Dinamik 3D Tilt Kontrolü
+    const cards = document.querySelectorAll('.project-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 12;
+        const rotateY = (centerX - x) / 12;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+      });
+    });
+
+    // Parallax Blobs
+    document.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e;
+      document.getElementById('blob1').style.transform = `translate(${clientX/60}px, ${clientY/60}px)`;
+      document.getElementById('blob2').style.transform = `translate(${-clientX/60}px, ${-clientY/60}px)`;
+    });
+
+    // Modal Fonksiyonları
+    const modal = document.getElementById('modalOverlay');
+    function openModal(id) {
+      if(id === 'p1') {
+        document.getElementById('modalTitle').innerText = 'Todo-app';
+        document.getElementById('modalDesc').innerText = '"Kullanıcı deneyimi odaklı, yerel depolama (LocalStorage) entegrasyonuna sahip ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi."';
+      } else {
+        document.getElementById('modalTitle').innerText = 'Yakında';
+        document.getElementById('modalDesc').innerText = 'Yakında';
+      }
+      modal.classList.add('open');
+    }
+    function closeModal() { modal.classList.remove('open'); }
+
+    // Scroll Takibi (Menü Aktifliği)
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        if (pageYOffset >= section.offsetTop - 200) { current = section.getAttribute('id'); }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').includes(current)) { link.classList.add('active'); }
+      });
+    });
+  </script>
+</body>
+</html>
