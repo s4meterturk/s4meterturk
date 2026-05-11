@@ -1,284 +1,838 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My profile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #6366f1;
-      --secondary: #a855f7;
-      --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.7);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samet Ertürk — Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0a0a0f;--paper:#f5f3ee;--accent:#e84b3a;--muted:#888;
+    --border:rgba(10,10,15,0.12);--card:#fff;--sidebar-bg:#0a0a0f;--sidebar-text:#f5f3ee;
+  }
+  [data-theme="dark"] {
+    --ink:#f0ede8;--paper:#0e0e14;--muted:#666;--border:rgba(240,237,232,0.1);
+    --card:#161620;--sidebar-bg:#080810;--sidebar-text:#f0ede8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;overflow-x:hidden;transition:background .3s,color .3s;}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-    
-    html, body { overflow-x: hidden; max-width: 100%; }
-    body { background: var(--bg); color: var(--text); }
+  /* CURSOR */
+  .cursor{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply;}
+  .cursor-ring{width:36px;height:36px;border:1.5px solid var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;opacity:.5;}
+  [data-theme="dark"] .cursor{mix-blend-mode:screen;}
 
-    /* # Arka Plan Parallax Küreleri */
-    .bg-blobs { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-    .blob { position: absolute; width: 500px; height: 500px; background: linear-gradient(var(--primary), var(--secondary)); filter: blur(100px); opacity: 0.12; border-radius: 50%; }
+  /* SIDEBAR */
+  .sidebar{width:240px;height:100vh;background:var(--sidebar-bg);position:fixed;left:0;top:0;display:flex;flex-direction:column;justify-content:space-between;padding:40px 28px;z-index:200;transition:background .3s;}
+  .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--sidebar-text);letter-spacing:.02em;line-height:1.2;}
+  .logo span{color:var(--accent);}
+  .nav-links{list-style:none;margin-top:36px;}
+  .nav-links li{margin-bottom:2px;}
+  .nav-links a{color:#555;text-decoration:none;font-size:.78rem;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);transition:color .2s;}
+  .nav-links a .num{color:rgba(255,255,255,.15);font-size:.65rem;min-width:20px;}
+  .nav-links a:hover,.nav-links a.active{color:var(--sidebar-text);}
+  .nav-links a.active .num{color:var(--accent);}
+  .sidebar-controls{display:flex;gap:8px;margin-bottom:14px;}
+  .ctrl-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#666;font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.06em;padding:6px 10px;border-radius:4px;cursor:pointer;transition:background .2s,color .2s;}
+  .ctrl-btn:hover,.ctrl-btn.active-lang{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .ctrl-btn.dark-active{background:rgba(255,255,255,.12);color:var(--sidebar-text);}
+  .sidebar-status{font-family:'DM Mono',monospace;font-size:.67rem;color:#444;letter-spacing:.05em;}
+  .status-dot{display:inline-block;width:7px;height:7px;background:#4ade80;border-radius:50%;margin-right:7px;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .social-links{display:flex;gap:12px;margin-top:14px;}
+  .social-links a{color:#444;text-decoration:none;font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.06em;transition:color .2s;}
+  .social-links a:hover{color:var(--sidebar-text);}
 
-    /* # Yan Menü Navigasyonu */
-    .sidebar {
-      width: 280px; height: 100vh; background: var(--card-bg); backdrop-filter: blur(25px);
-      border-right: 1px solid rgba(255,255,255,0.1); position: fixed; left: 0; top: 0; padding: 40px 20px;
-      display: flex; flex-direction: column; justify-content: space-between; z-index: 100;
-    }
-    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
-    .nav-links { list-style: none; margin-top: 50px; }
-    .nav-links li { margin-bottom: 10px; }
-    .nav-links a { color: var(--muted); text-decoration: none; padding: 12px 20px; display: block; border-radius: 12px; transition: 0.3s; font-weight: 500; }
-    .nav-links a:hover, .nav-links a.active { background: rgba(99, 102, 241, 0.1); color: var(--primary); transform: translateX(5px); }
+  /* MAIN */
+  main{margin-left:240px;}
+  section{min-height:100vh;padding:80px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--border);position:relative;transition:background .3s;}
 
-    /* # Ana İçerik ve Dikey Kaydırma */
-    main { margin-left: 280px; padding: 60px; }
-    section { min-height: 100vh; padding-top: 100px; display: flex; flex-direction: column; justify-content: center; }
-    .gradient-text { background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  /* HOME */
+  #home{overflow:hidden;}
+  .home-label{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin-bottom:40px;}
+  .home-label::before{content:'';display:block;width:30px;height:1px;background:var(--muted);}
+  .home-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3.5rem,7vw,7rem);line-height:.92;letter-spacing:-.03em;}
+  .home-title .accent{color:var(--accent);}
+  .home-title .line2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--ink);}
+  .home-desc{font-size:1rem;color:var(--muted);max-width:420px;line-height:1.7;margin-top:40px;font-weight:300;}
+  .home-cta{display:flex;gap:14px;margin-top:50px;align-items:center;flex-wrap:wrap;}
+  .btn-primary{background:var(--ink);color:var(--paper);text-decoration:none;font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 26px;border-radius:3px;transition:background .2s,transform .2s;}
+  .btn-primary:hover{background:var(--accent);transform:translateY(-2px);}
+  .btn-ghost{color:var(--ink);text-decoration:none;font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 0;border-bottom:1px solid var(--ink);transition:color .2s,border-color .2s;}
+  .btn-ghost:hover{color:var(--accent);border-color:var(--accent);}
+  .btn-cv{background:transparent;border:1px solid var(--border);color:var(--ink);text-decoration:none;font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;padding:13px 20px;border-radius:3px;transition:background .2s,transform .2s,border-color .2s;cursor:pointer;}
+  .btn-cv:hover{border-color:var(--ink);transform:translateY(-2px);}
+  .home-decoration{position:absolute;right:80px;bottom:80px;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);text-align:right;letter-spacing:.06em;line-height:1.8;}
 
-    /* # Projeler Menüsü (8: 3D Tilt Effect) */
-    .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; perspective: 1000px; }
-    .project-card {
-      background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 24px; padding: 35px; transition: transform 0.1s ease-out, box-shadow 0.3s, border-color 0.3s;
-      transform-style: preserve-3d; cursor: pointer; position: relative;
-    }
-    .project-card:hover { box-shadow: 0 25px 50px rgba(0,0,0,0.5); border-color: var(--primary); }
-    .project-card h3 { font-size: 1.6rem; margin: 15px 0 10px 0; transform: translateZ(30px); }
-    .project-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; transform: translateZ(20px); }
+  /* SECTION HEADERS */
+  .section-label{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:50px;display:flex;align-items:center;gap:14px;}
+  .section-label span{color:var(--accent);}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:60px;}
+  .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;letter-spacing:-.02em;margin-bottom:50px;}
 
-    /* # Teknoloji Stack Kaydırağı (3: Logo Carousel) */
-    .tech-slider { overflow: hidden; padding: 40px 0; background: rgba(255,255,255,0.02); margin-top: 30px; border-radius: 20px; white-space: nowrap; }
-    .tech-track { display: inline-block; animation: scroll 25s linear infinite; }
-    .tech-item { display: inline-block; margin: 0 45px; color: var(--muted); font-weight: 800; font-size: 1.3rem; opacity: 0.4; transition: 0.3s; }
-    .tech-item:hover { color: var(--primary); opacity: 1; transform: scale(1.1); }
-    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  /* ABOUT */
+  #about{background:var(--card);}
+  .about-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:70px;align-items:start;}
+  .about-photo{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .about-photo-placeholder{font-size:5rem;opacity:.3;}
+  .about-photo-label{position:absolute;bottom:14px;left:14px;font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.35);letter-spacing:.08em;}
+  .about-photo-wrap{position:relative;}
+  .about-photo-badge{position:absolute;top:-12px;right:-12px;background:var(--accent);color:#fff;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.06em;padding:7px 12px;border-radius:3px;text-transform:uppercase;}
+  .about-bio{font-size:.93rem;color:var(--muted);line-height:1.85;margin-bottom:28px;font-weight:300;}
+  .about-bio strong{color:var(--ink);font-weight:500;}
+  .about-facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;}
+  .about-fact{padding:18px;background:var(--paper);border:1px solid var(--border);border-radius:4px;}
+  .about-fact-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .about-fact-value{font-size:.88rem;font-weight:500;color:var(--ink);}
+  .about-interests{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  .interest-tag{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);padding:6px 13px;border-radius:20px;transition:border-color .2s,color .2s;cursor:default;}
+  .interest-tag:hover{border-color:var(--accent);color:var(--accent);}
+  .about-goals{margin-top:28px;padding:22px;border-left:3px solid var(--accent);background:var(--paper);}
+  .about-goals h4{font-family:'Syne',sans-serif;font-size:.95rem;margin-bottom:12px;}
+  .about-goals ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .about-goals li{font-size:.86rem;color:var(--muted);display:flex;gap:10px;align-items:flex-start;}
+  .about-goals li::before{content:'→';color:var(--accent);flex-shrink:0;margin-top:1px;}
 
-    /* # Referanslar (6: Testimonials) */
-    .testimonial-slider { display: flex; gap: 30px; overflow-x: auto; padding: 20px 5px 40px 5px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-    .testimonial-slider::-webkit-scrollbar { display: none; }
-    .testimonial-card {
-      min-width: 420px; background: var(--card-bg); backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 35px;
-      scroll-snap-align: start; transition: 0.4s;
-    }
-    .testimonial-card:hover { border-color: var(--secondary); background: rgba(168, 85, 247, 0.05); transform: translateY(-5px); }
-    .client-info { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-    .client-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--primary), var(--secondary)); display: grid; place-items: center; font-weight: 800; color: white; }
+  /* PROJECTS */
+  .project-list{display:flex;flex-direction:column;}
+  .project-item{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:28px;padding:26px 0;border-top:1px solid var(--border);cursor:pointer;text-decoration:none;color:inherit;transition:padding-left .3s;position:relative;}
+  .project-item:last-child{border-bottom:1px solid var(--border);}
+  .project-item:hover{padding-left:14px;}
+  .project-item:hover .project-num{color:var(--accent);}
+  .project-item:hover .project-arrow{transform:translate(4px,-4px);}
+  .project-num{font-family:'DM Mono',monospace;font-size:.73rem;color:var(--muted);transition:color .2s;letter-spacing:.04em;}
+  .project-info h3{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;margin-bottom:6px;}
+  .project-info p{font-size:.84rem;color:var(--muted);line-height:1.6;max-width:500px;}
+  .project-tags{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .tag{font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:4px 9px;border-radius:2px;}
+  .project-arrow{font-size:1.3rem;color:var(--muted);transition:transform .2s;}
+  .project-live{font-family:'DM Mono',monospace;font-size:.63rem;color:#4ade80;display:inline-flex;align-items:center;gap:5px;margin-top:8px;}
+  .project-live::before{content:'';display:inline-block;width:5px;height:5px;background:#4ade80;border-radius:50%;}
 
-    /* # Proje Detay & Kod Önizleme (7: Code Preview) */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 1000; display: none; place-items: center; opacity: 0; transition: 0.3s; }
-    .modal-overlay.open { display: grid; opacity: 1; }
-    .modal-content {
-      background: var(--bg); border: 1px solid rgba(255,255,255,0.1); width: min(1100px, 95%);
-      border-radius: 35px; padding: 50px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; transform: scale(0.9); transition: 0.3s;
-    }
-    .modal-overlay.open .modal-content { transform: scale(1); }
-    .code-window {
-      background: #0d1117; border-radius: 20px; padding: 25px; font-family: 'Fira Code', monospace;
-      font-size: 0.9rem; border: 1px solid #30363d; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden;
-    }
-    .code-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
-    .code-keyword { color: #ff7b72; } .code-text { color: #79c0ff; } .code-func { color: #d2a8ff; } .code-comment { color: #8b949e; }
+  /* TECH */
+  #stats{background:var(--ink);color:var(--paper);}
+  [data-theme="dark"] #stats{background:#080810;}
+  #stats .section-label{color:#555;}
+  #stats .section-label span{color:var(--accent);}
+  #stats .section-label::after{background:rgba(255,255,255,.08);}
+  #stats .section-title{color:var(--paper);}
+  .tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:2px;margin-top:10px;}
+  .tech-block{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:24px 20px;text-align:center;transition:background .2s,border-color .2s;cursor:default;}
+  .tech-block:hover{background:rgba(232,75,58,.08);border-color:rgba(232,75,58,.25);}
+  .tech-icon{font-size:1.6rem;}
+  .tech-name{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#666;transition:color .2s;display:block;margin-top:10px;}
+  .tech-block:hover .tech-name{color:var(--paper);}
+  .tech-marquee{overflow:hidden;margin-top:60px;padding:20px 0;border-top:1px solid rgba(255,255,255,.06);}
+  .marquee-track{display:flex;gap:60px;animation:marquee 22s linear infinite;white-space:nowrap;}
+  .marquee-item{font-family:'Syne',sans-serif;font-size:4rem;font-weight:800;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.1);flex-shrink:0;letter-spacing:-.03em;}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-    /* # İletişim Bölümü */
-    .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; }
-    .input-field { width: 100%; padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; color: white; margin-bottom: 20px; outline: none; transition: 0.3s; }
-    .input-field:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
-    .submit-btn { background: var(--primary); color: white; border: none; padding: 18px 45px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%; }
-    .submit-btn:hover { background: var(--secondary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+  /* TESTIMONIALS */
+  .testimonial-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+  .testimonial-card{background:var(--card);border:1px solid var(--border);padding:36px;transition:border-color .2s;}
+  .testimonial-card:hover{border-color:var(--accent);}
+  .quote-mark{font-size:3rem;color:var(--accent);font-family:'Syne',sans-serif;line-height:1;margin-bottom:16px;display:block;}
+  .testimonial-text{font-size:.93rem;color:var(--muted);line-height:1.75;font-style:italic;font-weight:300;margin-bottom:28px;}
+  .testimonial-author{display:flex;align-items:center;gap:14px;padding-top:20px;border-top:1px solid var(--border);}
+  .author-avatar{width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;}
+  .author-name{font-weight:600;font-size:.88rem;}
+  .author-role{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.04em;}
 
-    /* Sosyal Medya */
-    .social-links { display: flex; gap: 15px; }
-    .social-item svg { width: 22px; height: 22px; fill: var(--muted); transition: 0.3s; }
-    .social-item:hover svg { fill: var(--primary); transform: scale(1.2); }
-  </style>
+  /* CONTACT */
+  .contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start;}
+  .contact-detail{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+  .contact-detail-label{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;min-width:60px;padding-top:3px;}
+  .contact-detail-value{font-size:.9rem;color:var(--ink);}
+  .contact-detail-value a{color:inherit;text-decoration:none;}
+  .contact-detail-value a:hover{color:var(--accent);}
+  .form-group{margin-bottom:16px;}
+  .form-label{font-family:'DM Mono',monospace;font-size:.67rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+  .form-input{width:100%;padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:3px;font-size:.9rem;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;transition:border-color .2s;}
+  .form-input:focus{border-color:var(--ink);}
+  textarea.form-input{resize:vertical;min-height:120px;}
+  .form-submit{width:100%;background:var(--ink);color:var(--paper);border:none;padding:16px;font-family:'DM Mono',monospace;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:background .2s,transform .2s;margin-top:6px;}
+  .form-submit:hover{background:var(--accent);transform:translateY(-2px);}
+
+  /* FOOTER */
+  footer{margin-left:240px;background:var(--ink);color:#444;padding:26px 80px;display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.06em;}
+  [data-theme="dark"] footer{background:#080810;}
+  footer a{color:#444;text-decoration:none;}
+  footer a:hover{color:#fff;}
+
+  /* TERMINAL */
+  .terminal-widget{position:fixed;bottom:90px;right:24px;z-index:500;width:480px;background:#0d1117;border:1px solid #30363d;border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.6);display:none;flex-direction:column;overflow:hidden;font-family:'DM Mono',monospace;}
+  .terminal-widget.open{display:flex;}
+  .terminal-header{background:#161b22;padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #30363d;}
+  .t-dot{width:12px;height:12px;border-radius:50%;}
+  .t-dot.r{background:#ff5f56;cursor:pointer;}
+  .t-dot.y{background:#ffbd2e;}
+  .t-dot.g{background:#27c93f;}
+  .terminal-title{font-size:.73rem;color:#8b949e;margin-left:8px;letter-spacing:.04em;}
+  .terminal-body{padding:18px;min-height:240px;max-height:340px;overflow-y:auto;font-size:.8rem;line-height:1.7;color:#e6edf3;}
+  .terminal-body::-webkit-scrollbar{width:4px;}
+  .terminal-body::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px;}
+  .t-line{margin-bottom:3px;}
+  .t-prompt{color:#79c0ff;}
+  .t-output{color:#8b949e;}
+  .t-green{color:#56d364;}
+  .t-yellow{color:#e3b341;}
+  .t-red{color:#ff7b72;}
+  .t-cyan{color:#79c0ff;}
+  .terminal-input-row{display:flex;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid #21262d;background:#0d1117;}
+  .terminal-input-row span{color:#79c0ff;font-family:'DM Mono',monospace;font-size:.8rem;white-space:nowrap;}
+  .terminal-input{flex:1;background:none;border:none;outline:none;color:#e6edf3;font-family:'DM Mono',monospace;font-size:.8rem;caret-color:var(--accent);}
+
+  /* MUSIC */
+  .music-widget{position:fixed;bottom:90px;left:260px;z-index:500;width:290px;background:#0d1117;border:1px solid #30363d;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:'DM Mono',monospace;}
+  .music-widget.open{display:flex;}
+  .music-header{background:#161b22;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #30363d;}
+  .music-title-bar{font-size:.7rem;color:#8b949e;letter-spacing:.06em;text-transform:uppercase;}
+  .music-close{background:none;border:none;color:#666;cursor:pointer;font-size:.85rem;padding:0;line-height:1;}
+  .music-close:hover{color:#fff;}
+  .music-body{padding:18px;}
+  .music-album{width:100%;aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#1a1a2e,#e84b3a,#1a1a2e);margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;overflow:hidden;}
+  .music-album-spin{position:absolute;inset:0;background:conic-gradient(transparent 0deg,rgba(255,255,255,.05) 90deg,transparent 180deg);animation:spin 4s linear infinite;border-radius:8px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .music-track-name{font-size:.82rem;color:#e6edf3;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .music-artist{font-size:.7rem;color:#8b949e;margin-bottom:14px;}
+  .music-progress-wrap{background:#21262d;border-radius:4px;height:3px;margin-bottom:8px;cursor:pointer;position:relative;}
+  .music-progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .5s linear;}
+  .music-times{display:flex;justify-content:space-between;font-size:.63rem;color:#666;margin-bottom:14px;}
+  .music-controls{display:flex;align-items:center;justify-content:center;gap:14px;}
+  .music-btn{background:none;border:none;color:#8b949e;cursor:pointer;font-size:.95rem;padding:6px;border-radius:6px;transition:color .2s,background .2s;line-height:1;}
+  .music-btn:hover{color:#fff;background:rgba(255,255,255,.08);}
+  .music-btn.play{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;font-size:.88rem;display:flex;align-items:center;justify-content:center;}
+  .music-btn.play:hover{background:#c83a2a;}
+  .music-playlist{border-top:1px solid #21262d;max-height:140px;overflow-y:auto;}
+  .music-playlist::-webkit-scrollbar{width:3px;}
+  .music-playlist::-webkit-scrollbar-thumb{background:#30363d;}
+  .playlist-item{padding:9px 18px;font-size:.73rem;color:#666;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .15s,color .15s;}
+  .playlist-item:hover{background:rgba(255,255,255,.04);color:#e6edf3;}
+  .playlist-item.active{color:var(--accent);}
+  .playlist-item .dur{font-size:.63rem;color:#444;}
+
+  /* FAB */
+  .fab-group{position:fixed;bottom:24px;right:24px;display:flex;gap:10px;z-index:600;}
+  .fab{width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  .fab:hover{transform:scale(1.1);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+  .fab-terminal{background:#161b22;color:#79c0ff;border:1px solid #30363d;}
+  .fab-music{background:#161b22;color:#56d364;border:1px solid #30363d;}
+
+  /* SCROLL PROGRESS */
+  .scroll-progress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--accent);z-index:9999;transition:width .1s linear;box-shadow:0 0 8px rgba(232,75,58,.6);}
+
+  /* TYPING CURSOR */
+  .typing-cursor{display:inline-block;width:3px;height:.85em;background:var(--accent);margin-left:4px;vertical-align:middle;animation:blink .7s step-end infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* NOW PAGE */
+  #now{background:var(--card);}
+  .now-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px;}
+  .now-card{background:var(--paper);border:1px solid var(--border);padding:30px;transition:border-color .2s;}
+  .now-card:hover{border-color:var(--accent);}
+  .now-card-icon{font-size:1.6rem;margin-bottom:14px;}
+  .now-card-label{font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .now-card-value{font-size:.92rem;font-weight:500;color:var(--ink);line-height:1.5;}
+  .now-card-sub{font-size:.8rem;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .now-card-full{background:var(--paper);border:1px solid var(--border);padding:30px;transition:border-color .2s;}
+  .now-card-full:hover{border-color:var(--accent);}
+  .now-learning-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .now-learning-list li{font-size:.86rem;color:var(--muted);display:flex;gap:10px;align-items:flex-start;}
+  .now-learning-list li::before{content:'▸';color:var(--accent);flex-shrink:0;}
+  .now-updated{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--muted);letter-spacing:.06em;margin-top:30px;display:flex;align-items:center;gap:8px;}
+  .now-updated::before{content:'';display:inline-block;width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+
+  /* PROJECT MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px);}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal-box{background:var(--card);border:1px solid var(--border);border-radius:8px;width:min(680px,90vw);max-height:85vh;overflow-y:auto;padding:0;transform:translateY(20px);transition:transform .3s;position:relative;}
+  .modal-overlay.open .modal-box{transform:translateY(0);}
+  .modal-header{padding:32px 36px 0;display:flex;justify-content:space-between;align-items:flex-start;}
+  .modal-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;}
+  .modal-close{background:none;border:1px solid var(--border);color:var(--muted);font-size:.8rem;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;transition:border-color .2s,color .2s;}
+  .modal-close:hover{border-color:var(--ink);color:var(--ink);}
+  .modal-preview{width:100%;aspect-ratio:16/8;margin:24px 0;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .modal-body{padding:0 36px 36px;}
+  .modal-desc{font-size:.92rem;color:var(--muted);line-height:1.8;margin-bottom:24px;}
+  .modal-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+  .modal-features{margin-bottom:28px;}
+  .modal-features h4{font-family:'Syne',sans-serif;font-size:.95rem;margin-bottom:12px;}
+  .modal-features ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .modal-features li{font-size:.86rem;color:var(--muted);display:flex;gap:10px;}
+  .modal-features li::before{content:'✓';color:var(--accent);}
+  .modal-links{display:flex;gap:12px;}
+  .modal-link{font-family:'DM Mono',monospace;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;padding:11px 20px;border-radius:3px;border:1px solid var(--border);color:var(--ink);transition:background .2s,border-color .2s,transform .2s;}
+  .modal-link:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px);}
+  .modal-link.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .modal-link.primary:hover{background:var(--accent);border-color:var(--accent);}
+
+  /* SECTION FADE */
+  .section-fade{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+  .section-fade.visible{opacity:1;transform:translateY(0);}
+
+  /* MOBILE */
+  @media(max-width:900px){
+    .cursor,.cursor-ring{display:none}
+    .sidebar{width:100%;height:auto;position:relative;flex-direction:row;padding:14px 18px;align-items:center}
+    .nav-links,.sidebar-status,.social-links,.sidebar-controls{display:none}
+    main{margin-left:0}
+    section{padding:50px 22px}
+    .about-grid,.contact-grid,.now-grid{grid-template-columns:1fr;gap:0}
+    .modal-header,.modal-body{padding-left:22px;padding-right:22px;}
+    .testimonial-grid{grid-template-columns:1fr}
+    .home-decoration{display:none}
+    footer{margin-left:0;padding:18px 22px;flex-direction:column;gap:8px;text-align:center}
+    .project-item{grid-template-columns:46px 1fr auto;gap:12px}
+    .terminal-widget{width:calc(100vw - 32px);right:16px;bottom:80px}
+    .music-widget{left:16px;width:calc(100vw - 32px);bottom:80px}
+    .about-facts{grid-template-columns:1fr}
+  }
+</style>
 </head>
 <body>
 
-  <div class="bg-blobs">
-    <div class="blob" id="blob1" style="top: -5%; left: 20%;"></div>
-    <div class="blob" id="blob2" style="bottom: 0%; right: 0%; background: var(--secondary);"></div>
-  </div>
+<div class="scroll-progress" id="scrollProgress"></div>
 
-  <nav class="sidebar">
-    <div class="logo">SAMET<span class="gradient-text">ERTURK</span></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Todo App</h2>
+      <button class="modal-close" onclick="document.getElementById('projectModal').classList.remove('open')">ESC ✕</button>
+    </div>
+    <div class="modal-preview" id="modalPreview">📝</div>
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-features">
+        <h4>Özellikler</h4>
+        <ul id="modalFeatures"></ul>
+      </div>
+      <div class="modal-links" id="modalLinks"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMINAL -->
+<div class="terminal-widget" id="termWidget">
+  <div class="terminal-header">
+    <div class="t-dot r" onclick="closeTerminal()"></div>
+    <div class="t-dot y"></div>
+    <div class="t-dot g"></div>
+    <span class="terminal-title">samet@portfolio ~ bash</span>
+  </div>
+  <div class="terminal-body" id="termBody"></div>
+  <div class="terminal-input-row">
+    <span>samet@portfolio:~$</span>
+    <input class="terminal-input" id="termInput" placeholder="help yazarak başla..." autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<!-- MUSIC -->
+<div class="music-widget" id="musicWidget">
+  <div class="music-header">
+    <span class="music-title-bar">🎵 Şu An Dinliyorum</span>
+    <button class="music-close" onclick="document.getElementById('musicWidget').classList.remove('open')">✕</button>
+  </div>
+  <div class="music-body">
+    <div class="music-album"><div class="music-album-spin"></div><span id="musicEmoji">🎸</span></div>
+    <div class="music-track-name" id="trackName">Lofi Hip Hop Beat</div>
+    <div class="music-artist" id="trackArtist">ChillHop Music</div>
+    <div class="music-progress-wrap" onclick="seekMusic(event)"><div class="music-progress-fill" id="musicProgress" style="width:0%"></div></div>
+    <div class="music-times"><span id="timeElapsed">0:00</span><span id="timeDuration">3:24</span></div>
+    <div class="music-controls">
+      <button class="music-btn" onclick="prevTrack()">⏮</button>
+      <button class="music-btn play" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="music-btn" onclick="nextTrack()">⏭</button>
+    </div>
+  </div>
+  <div class="music-playlist" id="playlist"></div>
+</div>
+
+<!-- FAB -->
+<div class="fab-group">
+  <button class="fab fab-music" onclick="toggleMusic()" title="Müzik">🎵</button>
+  <button class="fab fab-terminal" onclick="toggleTerminal()" title="Terminal">⌨️</button>
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div>
+    <div class="logo">SAMET<br><span>ERTÜRK</span></div>
     <ul class="nav-links">
-      <li><a href="#home" class="active">Ana Sayfa</a></li>
-      <li><a href="#projects">Projelerim</a></li>
-      <li><a href="#stats">Teknolojiler</a></li>
-      <li><a href="#testimonials">Referanslar</a></li>
-      <li><a href="#contact">İletişim</a></li>
+      <li><a href="#home" class="active"><span class="num">01</span> Ana Sayfa</a></li>
+      <li><a href="#about"><span class="num">02</span> Hakkımda</a></li>
+      <li><a href="#now"><span class="num">03</span> Şu An</a></li>
+      <li><a href="#projects"><span class="num">04</span> Projeler</a></li>
+      <li><a href="#stats"><span class="num">05</span> Teknolojiler</a></li>
+      <li><a href="#testimonials"><span class="num">06</span> Referanslar</a></li>
+      <li><a href="#contact"><span class="num">07</span> İletişim</a></li>
     </ul>
-    <div class="social-links">
-      <a href="https://www.instagram.com/sameterturk4/" class="social-item"><svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-115.1 51.5-115.1 115.1s51.5 115.1 115.1 115.1c63.6 0 115.1-51.5 115.1-115.1S287.7 141 224.1 141zm0 189.9c-41.2 0-74.8-33.6-74.8-74.8s33.6-74.8 74.8-74.8 74.8 33.6 74.8 74.8-33.6 74.8-74.8 74.8zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.8 9.9 67.6 36.1 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.9 0-184.9zm-35.4 235.7c-7.7 20.3-21.2 36.1-41.5 43.8-31 12.3-104.5 9.5-138.6 9.5s-107.6 2.7-138.6-9.5c-20.3-7.7-36.1-21.2-43.8-41.5-12.3-31-9.5-104.5-9.5-138.6s-2.7-107.6 9.5-138.6c7.7-20.3 21.2-36.1 41.5-43.8 31-12.3 104.5-9.5 138.6-9.5s107.6-2.7 138.6 9.5c20.3 7.7 36.1 21.2 43.8 41.5 12.3 31 9.5 104.5 9.5 138.6s2.7 107.6-9.5 138.6z"/></svg></a>
-      <a href="https://github.com/s4meterturk" class="social-item"><svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm125.7-120.6c-17.6 0-32.9 13.9-32.9 34.3 0 20.3 14.9 34.3 32.9 34.3 18 0 32.9-14 32.9-34.3-.1-20.4-15-34.3-32.9-34.3zM496 256C496 114.6 381.4 0 240 0S0 114.6 0 256c0 102.4 60.2 190.5 147.1 230.9 12.3 2.2 16.8-5.3 16.8-11.7 0-5.9-.2-21.6-.3-42.3-60.5 13.9-73.4-29.2-73.4-29.2-9.9-25.1-24.1-31.7-24.1-31.7-19.8-13.6 1.5-13.3 1.5-13.3 21.8 1.5 33.3 22.4 33.3 22.4 19.5 33.3 51.2 23.7 63.7 18.1 2-14.2 7.8-23.7 14.1-29.1-48.3-5.5-99-24.1-99-107.4 0-23.7 8.5-43.1 22.4-58.2-2.2-5.5-9.7-27.7 2.2-57.5 0 0 18.2-5.8 59.7 22.2 17.3-4.8 35.8-7.3 54.1-7.4 18.2.1 36.7 2.6 54.1 7.4 41.5-28 59.7-22.2 59.7-22.2 11.9 29.8 4.4 52 2.2 57.5 14.1 15.1 22.4 34.5 22.4 58.2 0 83.4-50.8 101.8-100 107.3 8.8 7.6 16.6 22.8 16.6 46 0 33.2-.3 59.9-.3 68 0 6.4 4.5 13.9 17 11.6C435.7 446.5 496 358.3 496 256z"/></svg></a>
+  </div>
+  <div>
+    <div class="sidebar-controls">
+      <button class="ctrl-btn active-lang" id="langBtn" onclick="toggleLang()">TR</button>
+      <button class="ctrl-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
     </div>
-  </nav>
-
-  <main>
-    <section id="home">
-      <h1 style="font-size: 5rem; font-weight: 800; line-height: 1;">YENİ<br><span class="gradient-text">PROJELER</span></h1>
-      <p style="color: var(--muted); margin-top: 30px; max-width: 600px; font-size: 1.2rem;">20 yaşında meraklı bir üniversite öğrencisisi.</p>
-    </section>
-
-    <section id="projects">
-      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">Seçili Projeler</h2>
-      <div class="project-grid">
-        <div class="project-card" onclick="openModal('p1')">
-          <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px;">WEB APP • 2026</span>
-          <h3>Todo-app</h3>
-          <p>"Kullanıcı deneyimi odaklı, yerel depolama (LocalStorage) entegrasyonuna sahip ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi."</p>
-          <div style="margin-top: 20px; color: var(--primary); font-weight: 600;">İncele ↗</div>
-        </div>
-        <div class="project-card" onclick="openModal('p2')">
-          <span style="color: var(--secondary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px;">???</span>
-          <h3>Yakında</h3>
-          <p>???</p>
-          <div style="margin-top: 20px; color: var(--secondary); font-weight: 600;">İncele ↗</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="stats">
-      <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Teknoloji Stack</h2>
-      <div class="tech-slider">
-        <div class="tech-track">
-          <span class="tech-item">REACT</span><span class="tech-item">NEXT.JS</span><span class="tech-item">NODE.JS</span>
-          <span class="tech-item">TYPESCRIPT</span><span class="tech-item">PYTHON</span><span class="tech-item">FIGMA</span>
-          <span class="tech-item">MONGODB</span><span class="tech-item">DOCKER</span><span class="tech-item">TAILWIND</span>
-          <span class="tech-item">REACT</span><span class="tech-item">NEXT.JS</span><span class="tech-item">NODE.JS</span>
-          <span class="tech-item">TYPESCRIPT</span><span class="tech-item">PYTHON</span><span class="tech-item">FIGMA</span>
-          <span class="tech-item">MONGODB</span><span class="tech-item">DOCKER</span><span class="tech-item">TAILWIND</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="testimonials">
-      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">Referanslar</h2>
-      <div class="testimonial-slider">
-        <div class="testimonial-card">
-          <div class="client-info">
-            <div class="client-avatar">AA</div>
-            <div><h4>Ahmet Aksoy</h4><span style="font-size:0.8rem; color:var(--primary);">CEO @ TechNova</span></div>
-          </div>
-          <p style="font-style:italic; color:var(--muted);">"Teslim edilen projenin kalitesi ve hızı bizi gerçekten etkiledi. Modern bir vizyonla çalışmak harikaydı."</p>
-        </div>
-        <div class="testimonial-card">
-          <div class="client-info">
-            <div class="client-avatar">SY</div>
-            <div><h4>Selin Yılmaz</h4><span style="font-size:0.8rem; color:var(--secondary);">Product Lead @ CreativeLab</span></div>
-          </div>
-          <p style="font-style:italic; color:var(--muted);">"Kullanıcı deneyimi konusundaki hassasiyeti projemizin başarısında anahtar rol oynadı. Kesinlikle öneririm."</p>
-        </div>
-      </div>
-      <p style="color: var(--muted); font-size: 0.85rem; margin-top: 15px;">← Yana Kaydırılabilir →</p>
-    </section>
-
-    <section id="contact">
-      <h2 style="font-size: 2.5rem; margin-bottom: 50px;">İletişime Geç</h2>
-      <div class="contact-grid">
-        <div class="glass-card" style="background: rgba(255,255,255,0.02); padding: 40px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);">
-          <h3>Kısaca,</h3>
-          <p style="color: var(--muted); margin: 25px 0;">Full Stack Developer</p>
-          <p>📧 s4meterturk@gmail.com</p>
-          <p>📍 Manisa / Türkiye</p>
-        </div>
-        <form onsubmit="event.preventDefault(); alert('Mesaj iletildi!');">
-          <input type="text" class="input-field" placeholder="Adınız Soyadınız" required>
-          <input type="email" class="input-field" placeholder="E-posta Adresiniz" required>
-          <textarea class="input-field" placeholder="Mesajınızı yazın..." rows="5" required></textarea>
-          <button type="submit" class="submit-btn">Mesajı Gönder 🚀</button>
-        </form>
-      </div>
-    </section>
-  </main>
-
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-content">
-      <div>
-        <button onclick="closeModal()" style="background: none; border: none; color: var(--muted); cursor: pointer; margin-bottom: 25px; font-weight: 600;">← KAPAT</button>
-        <h2 id="modalTitle" style="font-size: 3rem; margin-bottom: 20px;">Başlık</h2>
-        <p id="modalDesc" style="color: var(--muted); line-height: 1.8; font-size: 1.1rem;"></p>
-      </div>
-      <div class="code-window">
-        <div style="margin-bottom: 20px;">
-          <span class="code-dot" style="background: #ff5f56;"></span>
-          <span class="code-dot" style="background: #ffbd2e;"></span>
-          <span class="code-dot" style="background: #27c93f;"></span>
-        </div>
-        <div style="color: #8b949e; margin-bottom: 10px;">// Project Source Preview</div>
-        <div id="codeSnippet">
-          <span class="code-keyword">const</span> <span style="color: #d2a8ff;">Project</span> = () => {<br>
-          &nbsp;&nbsp;<span class="code-keyword">return</span> (<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="code-func">div</span> className=<span class="code-text">"container"</span>&gt;<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="code-func">Header</span> title={<span class="code-text">'Live'</span>} /&gt;<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="code-func">div</span>&gt;<br>
-          &nbsp;&nbsp;);<br>
-          };
-        </div>
-      </div>
+    <div class="sidebar-status"><span class="status-dot"></span><span id="statusText">Müsait</span></div>
+    <div class="social-links">
+      <a href="https://github.com/s4meterturk" target="_blank">GitHub</a>
+      <a href="https://www.instagram.com/sameterturk4/" target="_blank">IG</a>
+      <a href="mailto:s4meterturk@gmail.com">Mail</a>
     </div>
   </div>
+</nav>
 
-  <script>
-    // # 8: Dinamik 3D Tilt Kontrolü
-    const cards = document.querySelectorAll('.project-card');
-    cards.forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 12;
-        const rotateY = (centerX - x) / 12;
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
-      });
-    });
+<main>
+  <!-- HOME -->
+  <section id="home">
+    <div class="home-label"><span id="typingText"></span><span class="typing-cursor"></span></div>
+    <h1 class="home-title">SAMET<span class="accent">.</span><br><span class="line2">ERTÜRK</span></h1>
+    <p class="home-desc" id="homeDesc">20 yaşında meraklı bir üniversite öğrencisi. Web teknolojileri ve modern arayüzler üzerine kendimi geliştiriyorum.</p>
+    <div class="home-cta">
+      <a href="#projects" class="btn-primary" id="btnProjects">Projeleri Gör</a>
+      <a href="#contact" class="btn-ghost" id="btnContact">İletişim ↗</a>
+      <button class="btn-cv" onclick="downloadCV()" id="btnCV">↓ CV İndir</button>
+    </div>
+    <div class="home-decoration">s4meterturk@gmail.com<br>Manisa / Türkiye<br>© 2026</div>
+  </section>
 
-    // Parallax Blobs
-    document.addEventListener('mousemove', (e) => {
-      const { clientX, clientY } = e;
-      document.getElementById('blob1').style.transform = `translate(${clientX/60}px, ${clientY/60}px)`;
-      document.getElementById('blob2').style.transform = `translate(${-clientX/60}px, ${-clientY/60}px)`;
-    });
+  <!-- ABOUT -->
+  <section id="about" class="section-fade">
+    <div class="section-label"><span>02</span> <span id="labelAbout">Hakkımda</span></div>
+    <div class="about-grid">
+      <div class="about-photo-wrap">
+        <div class="about-photo"><div class="about-photo-placeholder">👨‍💻</div><div class="about-photo-label">SAMET ERTÜRK / 2026</div></div>
+        <div class="about-photo-badge" id="badgeAvail">Müsait ✓</div>
+      </div>
+      <div class="about-content">
+        <p class="about-bio" id="aboutBio"><strong>Samet Ertürk</strong> — Manisa'da yaşayan, <strong>20 yaşında</strong> bir üniversite öğrencisiyim. Full Stack geliştirme alanında kendimi sürekli geliştiren, modern web teknolojilerine olan merakımı her yeni projede ileriye taşıyan biriyim.<br><br>Kod yazmayı sadece bir meslek olarak değil, yaratıcılığımı ifade ettiğim bir araç olarak görüyorum. Temiz kod, güçlü UX ve performans odaklı geliştirme benim önceliklerim.</p>
+        <div class="about-facts">
+          <div class="about-fact"><div class="about-fact-label" id="factEdu">Eğitim</div><div class="about-fact-value" id="factEduVal">Üniversite Öğrencisi</div></div>
+          <div class="about-fact"><div class="about-fact-label" id="factLoc">Konum</div><div class="about-fact-value">Manisa, TR 🇹🇷</div></div>
+          <div class="about-fact"><div class="about-fact-label" id="factExp">Deneyim</div><div class="about-fact-value" id="factExpVal">Öğrenci / Yan Projeler</div></div>
+          <div class="about-fact"><div class="about-fact-label" id="factLang">Diller</div><div class="about-fact-value" id="factLangVal">Türkçe, İngilizce</div></div>
+        </div>
+        <div class="about-interests">
+          <span class="interest-tag">⚽ Futbol</span><span class="interest-tag">🎮 Gaming</span><span class="interest-tag">🎵 Müzik</span>
+          <span class="interest-tag">📚 Teknoloji</span><span class="interest-tag">🎨 UI/UX</span><span class="interest-tag">☕ Kahve</span><span class="interest-tag">🎸 Gitar</span>
+        </div>
+        <div class="about-goals">
+          <h4 id="goalsTitle">2026 Hedefleri</h4>
+          <ul id="goalsList">
+            <li>Full Stack bir SaaS ürünü launch etmek</li>
+            <li>React Native ile mobil geliştirmeye girmek</li>
+            <li>Open source'a katkı sağlamak</li>
+            <li>Bir staj / freelance proje tamamlamak</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    // Modal Fonksiyonları
-    const modal = document.getElementById('modalOverlay');
-    function openModal(id) {
-      if(id === 'p1') {
-        document.getElementById('modalTitle').innerText = 'Todo-app';
-        document.getElementById('modalDesc').innerText = '"Kullanıcı deneyimi odaklı, yerel depolama (LocalStorage) entegrasyonuna sahip ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi."';
-      } else {
-        document.getElementById('modalTitle').innerText = 'Yakında';
-        document.getElementById('modalDesc').innerText = 'Yakında';
-      }
-      modal.classList.add('open');
-    }
-    function closeModal() { modal.classList.remove('open'); }
+  <!-- NOW -->
+  <section id="now" class="section-fade">
+    <div class="section-label"><span>03</span> Şu An</div>
+    <h2 class="section-title">Ne Yapıyorum?</h2>
+    <div class="now-grid">
+      <div class="now-card">
+        <div class="now-card-icon">🚧</div>
+        <div class="now-card-label">Üzerinde Çalıştığım Proje</div>
+        <div class="now-card-value">Portfolio v4 + SaaS Fikri</div>
+        <div class="now-card-sub">Bu siteyi sıfırdan yeniden tasarladım. Paralelde bir SaaS ürünü için wireframe ve mimari tasarımı yapıyorum.</div>
+      </div>
+      <div class="now-card">
+        <div class="now-card-icon">📚</div>
+        <div class="now-card-label">Şu An Öğrendiklerim</div>
+        <div class="now-card-value">Next.js App Router & TypeScript</div>
+        <div class="now-card-sub">Server components, server actions ve TypeScript ile tip güvenliği konularına odaklanıyorum.</div>
+      </div>
+      <div class="now-card">
+        <div class="now-card-icon">🎯</div>
+        <div class="now-card-label">Bu Ay Hedefim</div>
+        <div class="now-card-value">İlk SaaS MVP'sini bitirmek</div>
+        <div class="now-card-sub">Mayıs 2026 sonuna kadar çalışan bir MVP çıkarmayı ve ilk kullanıcı geri bildirimini almayı hedefliyorum.</div>
+      </div>
+      <div class="now-card">
+        <div class="now-card-icon">🎵</div>
+        <div class="now-card-label">Kodlarken Dinlediklerim</div>
+        <div class="now-card-value">Lofi & Chill / Nujabes</div>
+        <div class="now-card-sub">Konsantrasyonu yüksek tutmak için saatlerce lofi çalıyor. Bazen math rock da açıyorum.</div>
+      </div>
+    </div>
+    <div class="now-card-full">
+      <div class="now-card-icon">🌱</div>
+      <div class="now-card-label">Uzun Vadeli Öğrenme Yolculuğu</div>
+      <div class="now-card-value" style="margin-bottom:4px;">2026 Roadmap</div>
+      <ul class="now-learning-list">
+        <li>React Native ile cross-platform mobile geliştirme</li>
+        <li>PostgreSQL ve ilişkisel veritabanı mimarisi</li>
+        <li>AWS / Vercel ile deployment ve DevOps pratikleri</li>
+        <li>Open source projelere katkı (önce küçük issue'lardan başlayarak)</li>
+        <li>Algoritma & veri yapıları — LeetCode'da düzenli pratik</li>
+      </ul>
+    </div>
+    <div class="now-updated">Son güncelleme: Mayıs 2026 — Manisa, Türkiye</div>
+  </section>
 
-    // Scroll Takibi (Menü Aktifliği)
-    const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('.nav-links a');
-    window.addEventListener('scroll', () => {
-      let current = '';
-      sections.forEach(section => {
-        if (pageYOffset >= section.offsetTop - 200) { current = section.getAttribute('id'); }
-      });
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href').includes(current)) { link.classList.add('active'); }
-      });
-    });
-  </script>
+  <!-- PROJECTS -->
+  <section id="projects" class="section-fade">
+    <div class="section-label"><span>04</span> <span id="labelProjects">Projeler</span></div>
+    <h2 class="section-title" id="projectsTitle">Seçili Çalışmalar</h2>
+    <div class="project-list">
+      <a class="project-item" href="#" onclick="openModal('todo');return false;">
+        <div class="project-num">001</div>
+        <div class="project-info">
+          <h3>Todo App</h3>
+          <p id="p1desc">Kullanıcı deneyimi odaklı, LocalStorage entegrasyonlu ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi.</p>
+          <div class="project-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span><span class="tag">LocalStorage</span></div>
+          <div class="project-live" id="p1live">Live</div>
+        </div>
+        <div class="project-arrow">↗</div>
+      </a>
+      <div class="project-item" style="opacity:.4;cursor:default;">
+        <div class="project-num">002</div>
+        <div class="project-info">
+          <h3 id="p2title">Yakında</h3>
+          <p id="p2desc">Yeni proje geliştirme aşamasında...</p>
+          <div class="project-tags"><span class="tag">???</span></div>
+        </div>
+        <div class="project-arrow" style="font-size:1rem">🔒</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH -->
+  <section id="stats">
+    <div class="section-label"><span>05</span> <span id="labelTech">Teknolojiler</span></div>
+    <h2 class="section-title">Stack</h2>
+    <div class="tech-grid">
+      <div class="tech-block"><div class="tech-icon">⚛️</div><span class="tech-name">React</span></div>
+      <div class="tech-block"><div class="tech-icon">▲</div><span class="tech-name">Next.js</span></div>
+      <div class="tech-block"><div class="tech-icon">🟩</div><span class="tech-name">Node.js</span></div>
+      <div class="tech-block"><div class="tech-icon">🔷</div><span class="tech-name">TypeScript</span></div>
+      <div class="tech-block"><div class="tech-icon">🐍</div><span class="tech-name">Python</span></div>
+      <div class="tech-block"><div class="tech-icon">🎨</div><span class="tech-name">Figma</span></div>
+      <div class="tech-block"><div class="tech-icon">🍃</div><span class="tech-name">MongoDB</span></div>
+      <div class="tech-block"><div class="tech-icon">🐳</div><span class="tech-name">Docker</span></div>
+      <div class="tech-block"><div class="tech-icon">💨</div><span class="tech-name">Tailwind</span></div>
+    </div>
+    <div class="tech-marquee">
+      <div class="marquee-track">
+        <span class="marquee-item">REACT</span><span class="marquee-item">•</span><span class="marquee-item">NEXT.JS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">NODE.JS</span><span class="marquee-item">•</span><span class="marquee-item">PYTHON</span><span class="marquee-item">•</span>
+        <span class="marquee-item">TYPESCRIPT</span><span class="marquee-item">•</span><span class="marquee-item">DOCKER</span><span class="marquee-item">•</span>
+        <span class="marquee-item">REACT</span><span class="marquee-item">•</span><span class="marquee-item">NEXT.JS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">NODE.JS</span><span class="marquee-item">•</span><span class="marquee-item">PYTHON</span><span class="marquee-item">•</span>
+        <span class="marquee-item">TYPESCRIPT</span><span class="marquee-item">•</span><span class="marquee-item">DOCKER</span><span class="marquee-item">•</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="section-fade">
+    <div class="section-label"><span>06</span> <span id="labelRef">Referanslar</span></div>
+    <h2 class="section-title" id="refTitle">Ne Dediler</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <span class="quote-mark">"</span>
+        <p class="testimonial-text" id="t1text">Teslim edilen projenin kalitesi ve hızı bizi gerçekten etkiledi. Modern bir vizyonla çalışmak harikaydı.</p>
+        <div class="testimonial-author"><div class="author-avatar">AA</div><div><div class="author-name">Ahmet Aksoy</div><div class="author-role">CEO @ TechNova</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <span class="quote-mark">"</span>
+        <p class="testimonial-text" id="t2text">Kullanıcı deneyimi konusundaki hassasiyeti projemizin başarısında anahtar rol oynadı. Kesinlikle öneririm.</p>
+        <div class="testimonial-author"><div class="author-avatar">SY</div><div><div class="author-name">Selin Yılmaz</div><div class="author-role">Product Lead @ CreativeLab</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section-fade">
+    <div class="section-label"><span>07</span> <span id="labelContact">İletişim</span></div>
+    <h2 class="section-title" id="contactTitle">Birlikte Çalışalım</h2>
+    <div class="contact-grid">
+      <div>
+        <div class="contact-detail"><div class="contact-detail-label" id="cRol">Rol</div><div class="contact-detail-value">Full Stack Developer</div></div>
+        <div class="contact-detail"><div class="contact-detail-label">Email</div><div class="contact-detail-value"><a href="mailto:s4meterturk@gmail.com">s4meterturk@gmail.com</a></div></div>
+        <div class="contact-detail"><div class="contact-detail-label" id="cLoc">Konum</div><div class="contact-detail-value">Manisa / Türkiye</div></div>
+        <div class="contact-detail"><div class="contact-detail-label">GitHub</div><div class="contact-detail-value"><a href="https://github.com/s4meterturk" target="_blank">github.com/s4meterturk</a></div></div>
+        <div class="contact-detail"><div class="contact-detail-label" id="cStatus">Durum</div><div class="contact-detail-value"><span class="status-dot"></span><span id="cStatusVal">Yeni fırsatlara açığım</span></div></div>
+      </div>
+      <form onsubmit="handleSubmit(event)">
+        <div class="form-group"><label class="form-label" id="fName">Ad Soyad</label><input type="text" class="form-input" id="fNameInput" placeholder="Adınız Soyadınız" required></div>
+        <div class="form-group"><label class="form-label">E-posta</label><input type="email" class="form-input" placeholder="ornek@email.com" required></div>
+        <div class="form-group"><label class="form-label" id="fMsg">Mesaj</label><textarea class="form-input" id="fMsgInput" placeholder="Mesajınız..." required></textarea></div>
+        <button type="submit" class="form-submit" id="fSubmit">Gönder ↗</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 Samet Ertürk</span>
+  <span>Manisa / Türkiye</span>
+</footer>
+
+<script>
+// ── SCROLL PROGRESS ──
+const scrollBar=document.getElementById('scrollProgress');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  scrollBar.style.width=(window.scrollY/h*100)+'%';
+});
+
+// ── TYPING ANIMATION ──
+(function(){
+  const phrases=['Full Stack Developer','UI Enthusiast','Open Source Fan','Öğrenci & Meraklı','React Developer'];
+  let pi=0,ci=0,del=false;
+  const el=document.getElementById('typingText');
+  function tick(){
+    const phrase=phrases[pi];
+    if(!del){el.textContent=phrase.slice(0,++ci);if(ci===phrase.length){del=true;setTimeout(tick,1600);return;}}
+    else{el.textContent=phrase.slice(0,--ci);if(ci===0){del=false;pi=(pi+1)%phrases.length;}}
+    setTimeout(tick,del?42:80);
+  }
+  tick();
+})();
+
+// ── SECTION FADE ──
+const secObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.07});
+document.querySelectorAll('.section-fade').forEach(el=>secObs.observe(el));
+
+// ── PROJECT MODAL ──
+const projectData={
+  todo:{
+    title:'Todo App',
+    emoji:'📝',
+    desc:'Kullanıcı deneyimi odaklı, LocalStorage entegrasyonlu ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi. Sade arayüzü ve hızlı performansıyla günlük kullanıma uygun.',
+    tags:['HTML','CSS','JavaScript','LocalStorage'],
+    features:['Gerçek zamanlı görev filtreleme (Tümü / Aktif / Tamamlanan)','LocalStorage ile veri kalıcılığı','Görev ekleme, silme ve tamamlama','Temiz, responsive arayüz tasarımı','Sıfır bağımlılık — vanilla JS'],
+    github:'https://github.com/s4meterturk',
+    live:null
+  }
+};
+
+function openModal(key){
+  const d=projectData[key];if(!d)return;
+  document.getElementById('modalTitle').textContent=d.title;
+  document.getElementById('modalPreview').textContent=d.emoji;
+  document.getElementById('modalDesc').textContent=d.desc;
+  document.getElementById('modalTags').innerHTML=d.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('modalFeatures').innerHTML=d.features.map(f=>`<li>${f}</li>`).join('');
+  const links=document.getElementById('modalLinks');
+  links.innerHTML='';
+  if(d.github)links.innerHTML+=`<a class="modal-link primary" href="${d.github}" target="_blank">GitHub ↗</a>`;
+  if(d.live)links.innerHTML+=`<a class="modal-link" href="${d.live}" target="_blank">Live Demo ↗</a>`;
+  document.getElementById('projectModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(e){
+  if(e.target===document.getElementById('projectModal')){
+    document.getElementById('projectModal').classList.remove('open');
+    document.body.style.overflow='';
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('projectModal').classList.remove('open');document.body.style.overflow='';}});
+
+// ── CURSOR ──
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function animateCursor(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cursor.style.left=mx+'px';cursor.style.top=my+'px';ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animateCursor);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='56px';ring.style.height='56px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='36px';ring.style.height='36px';});
+});
+
+// ── NAV ──
+const allSec=document.querySelectorAll('section'),navLinks=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{
+  let cur='';allSec.forEach(s=>{if(pageYOffset>=s.offsetTop-300)cur=s.id;});
+  navLinks.forEach(a=>{a.classList.remove('active');if(a.href.includes(cur))a.classList.add('active');});
+});
+
+// ── FORM ──
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=document.getElementById('fSubmit');
+  const isTR=currentLang==='tr';
+  btn.textContent=isTR?'Mesaj İletildi ✓':'Message Sent ✓';
+  btn.style.background='#4ade80';btn.style.color='#0a0a0f';
+  setTimeout(()=>{btn.textContent=isTR?'Gönder ↗':'Send ↗';btn.style.background='';btn.style.color='';e.target.reset();},3000);
+}
+
+// ── FADE IN ──
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:.08});
+document.querySelectorAll('.project-item,.testimonial-card,.tech-block,.about-fact,.interest-tag').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .5s ease,transform .5s ease';obs.observe(el);});
+
+// ── DARK MODE ──
+function toggleTheme(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeBtn').textContent=isDark?'🌙':'☀️';
+}
+
+// ── LANGUAGE ──
+let currentLang='tr';
+const translations={
+  tr:{homeLabel:'Full Stack Developer & Öğrenci',homeDesc:'20 yaşında meraklı bir üniversite öğrencisi. Web teknolojileri ve modern arayüzler üzerine kendimi geliştiriyorum.',btnProjects:'Projeleri Gör',btnContact:'İletişim ↗',btnCV:'↓ CV İndir',labelAbout:'Hakkımda',badgeAvail:'Müsait ✓',aboutBio:'<strong>Samet Ertürk</strong> — Manisa\'da yaşayan, <strong>20 yaşında</strong> bir üniversite öğrencisiyim. Full Stack geliştirme alanında kendimi sürekli geliştiren, modern web teknolojilerine olan merakımı her yeni projede ileriye taşıyan biriyim.<br><br>Kod yazmayı sadece bir meslek olarak değil, yaratıcılığımı ifade ettiğim bir araç olarak görüyorum.',factEdu:'Eğitim',factEduVal:'Üniversite Öğrencisi',factLoc:'Konum',factExp:'Deneyim',factExpVal:'Öğrenci / Yan Projeler',factLang:'Diller',factLangVal:'Türkçe, İngilizce',goalsTitle:'2026 Hedefleri',goals:['Full Stack bir SaaS ürünü launch etmek','React Native ile mobil geliştirmeye girmek','Open source\'a katkı sağlamak','Bir staj / freelance proje tamamlamak'],labelProjects:'Projeler',projectsTitle:'Seçili Çalışmalar',p1desc:'Kullanıcı deneyimi odaklı, LocalStorage entegrasyonlu ve gerçek zamanlı filtreleme özellikli görev yönetim sistemi.',p1live:'Live',p2title:'Yakında',p2desc:'Yeni proje geliştirme aşamasında...',labelTech:'Teknolojiler',labelRef:'Referanslar',refTitle:'Ne Dediler',t1text:'Teslim edilen projenin kalitesi ve hızı bizi gerçekten etkiledi. Modern bir vizyonla çalışmak harikaydı.',t2text:'Kullanıcı deneyimi konusundaki hassasiyeti projemizin başarısında anahtar rol oynadı. Kesinlikle öneririm.',labelContact:'İletişim',contactTitle:'Birlikte Çalışalım',cRol:'Rol',cLoc:'Konum',cStatus:'Durum',cStatusVal:'Yeni fırsatlara açığım',fName:'Ad Soyad',fNamePh:'Adınız Soyadınız',fMsg:'Mesaj',fMsgPh:'Mesajınız...',fSubmit:'Gönder ↗',statusText:'Müsait'},
+  en:{homeLabel:'Full Stack Developer & Student',homeDesc:'A curious 20-year-old university student. Building myself up in web technologies and modern interfaces.',btnProjects:'View Projects',btnContact:'Contact ↗',btnCV:'↓ Download CV',labelAbout:'About Me',badgeAvail:'Available ✓',aboutBio:'<strong>Samet Ertürk</strong> — A <strong>20-year-old</strong> university student based in Manisa. I continuously grow in full stack development, bringing my passion for modern web technologies to every new project.<br><br>I see coding not just as a profession, but as a tool for creative expression.',factEdu:'Education',factEduVal:'University Student',factLoc:'Location',factExp:'Experience',factExpVal:'Student / Side Projects',factLang:'Languages',factLangVal:'Turkish, English',goalsTitle:'2026 Goals',goals:['Launch a full stack SaaS product','Get into mobile development with React Native','Contribute to open source','Complete an internship / freelance project'],labelProjects:'Projects',projectsTitle:'Selected Work',p1desc:'A user-experience focused task manager with LocalStorage integration and real-time filtering.',p1live:'Live',p2title:'Coming Soon',p2desc:'New project in development...',labelTech:'Technologies',labelRef:'Testimonials',refTitle:'What They Said',t1text:'The quality and speed of the delivered project truly impressed us. Working with such a modern vision was wonderful.',t2text:'His sensitivity to user experience played a key role in our project\'s success. Highly recommended.',labelContact:'Contact',contactTitle:"Let's Work Together",cRol:'Role',cLoc:'Location',cStatus:'Status',cStatusVal:'Open to new opportunities',fName:'Full Name',fNamePh:'Your Full Name',fMsg:'Message',fMsgPh:'Your message...',fSubmit:'Send ↗',statusText:'Available'}
+};
+
+function applyLang(lang){
+  const t=translations[lang];
+  const ids=['homeDesc','btnProjects','btnContact','btnCV','labelAbout','badgeAvail','aboutBio','factEdu','factEduVal','factLoc','factExp','factExpVal','factLang','factLangVal','goalsTitle','labelProjects','projectsTitle','p1desc','p1live','p2title','p2desc','labelTech','labelRef','refTitle','t1text','t2text','labelContact','contactTitle','cRol','cLoc','cStatus','cStatusVal','fName','fMsg','fSubmit','statusText'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&t[id]!==undefined)el.innerHTML=t[id];});
+  // goals list
+  const gl=document.getElementById('goalsList');
+  if(gl)gl.innerHTML=t.goals.map(g=>`<li>${g}</li>`).join('');
+  // placeholders
+  const fni=document.getElementById('fNameInput'),fmi=document.getElementById('fMsgInput');
+  if(fni)fni.placeholder=t.fNamePh;
+  if(fmi)fmi.placeholder=t.fMsgPh;
+}
+
+function toggleLang(){
+  currentLang=currentLang==='tr'?'en':'tr';
+  document.documentElement.lang=currentLang;
+  document.getElementById('langBtn').textContent=currentLang.toUpperCase();
+  applyLang(currentLang);
+}
+
+// ── CV ──
+function downloadCV(){
+  const isTR=currentLang==='tr';
+  const cv=`SAMET ERTÜRK — ${isTR?'ÖZGEÇMİŞ':'RESUME'}
+========================================
+Full Stack Developer
+Manisa, Türkiye | s4meterturk@gmail.com
+github.com/s4meterturk | instagram: @sameterturk4
+
+${isTR?'HAKKIMDA':'ABOUT'}
+--------
+${isTR?'20 yaşında Full Stack Developer adayı. Üniversite öğrencisi.':'20-year-old aspiring Full Stack Developer. University student.'}
+
+${isTR?'TEKNOLOJİLER':'TECHNOLOGIES'}
+------------
+Frontend  → React, Next.js, TypeScript, Tailwind CSS
+Backend   → Node.js, Python
+Database  → MongoDB
+DevOps    → Docker, Git
+Design    → Figma
+
+${isTR?'PROJELER':'PROJECTS'}
+--------
+• Todo App — HTML/CSS/JS + LocalStorage (2026)
+
+${isTR?'İLETİŞİM':'CONTACT'}
+--------
+s4meterturk@gmail.com
+github.com/s4meterturk
+`;
+  const blob=new Blob([cv],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='SametErturk_CV.txt';a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── TERMINAL ──
+const termData={
+  help:{out:['<span class="t-green">Kullanılabilir komutlar:</span>','  <span class="t-cyan">whoami</span>     — Kim bu adam?','  <span class="t-cyan">skills</span>     — Teknoloji stack','  <span class="t-cyan">projects</span>   — Projeler','  <span class="t-cyan">now</span>        — Şu an ne yapıyorum?','  <span class="t-cyan">goals</span>      — 2026 hedefleri','  <span class="t-cyan">contact</span>    — İletişim bilgileri','  <span class="t-cyan">music</span>      — Şu an ne dinliyor?','  <span class="t-cyan">date</span>       — Bugünün tarihi','  <span class="t-cyan">joke</span>       — Yazılım şakası 😄','  <span class="t-cyan">clear</span>      — Ekranı temizle','']},
+  now:{out:['<span class="t-green">Şu An (Mayıs 2026):</span>','├── Proje    → <span class="t-cyan">Portfolio v4 + SaaS MVP</span>','├── Öğrenme  → <span class="t-cyan">Next.js App Router, TypeScript</span>','├── Hedef    → <span class="t-yellow">Mayıs sonuna kadar MVP çıkarmak</span>','├── Müzik    → <span class="t-cyan">Nujabes / Lofi Chill</span>','└── Durum    → <span class="t-green">Aktif geliştirme modu 🔥</span>','']},
+  whoami:{out:['<span class="t-green">Samet Ertürk</span>','├── Yaş: <span class="t-yellow">20</span>','├── Konum: <span class="t-cyan">Manisa, Türkiye 🇹🇷</span>','├── Rol: <span class="t-yellow">Full Stack Developer (Öğrenci)</span>','├── GitHub: <span class="t-cyan">github.com/s4meterturk</span>','└── Durum: <span class="t-green">Aktif — Yeni fırsatlara açık ✓</span>','']},
+  skills:{out:['<span class="t-green">Tech Stack:</span>','├── Frontend  → <span class="t-cyan">React, Next.js, TypeScript, Tailwind</span>','├── Backend   → <span class="t-cyan">Node.js, Python</span>','├── Database  → <span class="t-cyan">MongoDB</span>','├── DevOps    → <span class="t-cyan">Docker, Git</span>','└── Design    → <span class="t-cyan">Figma</span>','']},
+  projects:{out:['<span class="t-green">Projeler:</span>','  [001] <span class="t-cyan">Todo App</span> — HTML/CSS/JS + LocalStorage <span class="t-green">●</span> Live','  [002] <span class="t-yellow">??? — Geliştirme aşamasında 🔒</span>','','  → github.com/s4meterturk','']},
+  goals:{out:['<span class="t-green">2026 Hedefleri:</span>','  [ ] SaaS ürünü launch etmek','  [ ] React Native öğrenmek','  [ ] Open source katkısı','  [ ] Staj / freelance proje','']},
+  contact:{out:['<span class="t-green">İletişim:</span>','  Email  → <span class="t-cyan">s4meterturk@gmail.com</span>','  GitHub → <span class="t-cyan">github.com/s4meterturk</span>','  IG     → <span class="t-cyan">@sameterturk4</span>','']},
+  music:{out:['<span class="t-green">Şu an dinliyor:</span>','  🎵 Lofi & Chill — Kodlarken hep açık','  <span class="t-yellow">→ Sağ alttaki 🎵 butonuna bas!</span>','']},
+  date:{out:[`<span class="t-green">Tarih:</span> <span class="t-yellow">${new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>`,'']},
+  joke:{out:['<span class="t-yellow">Bir yazılımcı markete gider.</span>','Eşi telefon açar:','  "Ekmek al, bir de süt varsa 6 tane al."','Yazılımcı 6 ekmekle döner.','<span class="t-red">Çünkü süt vardı.</span> 🥛🍞×6','']},
+};
+
+const termBody=document.getElementById('termBody'),termInput=document.getElementById('termInput');
+let termHistory=[],historyIdx=-1;
+
+function termPrint(lines,isCmd=false,cmd=''){
+  if(isCmd){const r=document.createElement('div');r.className='t-line';r.innerHTML=`<span class="t-prompt">samet@portfolio:~$</span> ${cmd}`;termBody.appendChild(r);}
+  lines.forEach(l=>{const r=document.createElement('div');r.className='t-line t-output';r.innerHTML=l;termBody.appendChild(r);});
+  termBody.scrollTop=termBody.scrollHeight;
+}
+
+function initTerminal(){
+  termBody.innerHTML='';
+  termPrint(['<span class="t-green">╔══════════════════════════════════════╗</span>','<span class="t-green">║</span>   Samet Ertürk Portfolio Terminal   <span class="t-green">║</span>','<span class="t-green">╚══════════════════════════════════════╝</span>','Başlamak için <span class="t-cyan">help</span> yaz ve Enter\'a bas.','']);
+}
+
+termInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const cmd=termInput.value.trim().toLowerCase();
+    if(!cmd)return;
+    termHistory.unshift(cmd);historyIdx=-1;termInput.value='';
+    if(cmd==='clear'){termBody.innerHTML='';initTerminal();return;}
+    termPrint([],true,cmd);
+    termPrint(termData[cmd]?termData[cmd].out:[`<span class="t-red">Komut bulunamadı: ${cmd}</span>`,`Yardım için: <span class="t-cyan">help</span>`,'']);
+  }
+  if(e.key==='ArrowUp'){historyIdx=Math.min(historyIdx+1,termHistory.length-1);termInput.value=termHistory[historyIdx]||'';}
+  if(e.key==='ArrowDown'){historyIdx=Math.max(historyIdx-1,-1);termInput.value=historyIdx>=0?termHistory[historyIdx]:'';}
+});
+
+function toggleTerminal(){
+  const w=document.getElementById('termWidget');
+  const opening=!w.classList.contains('open');
+  w.classList.toggle('open');
+  if(opening){initTerminal();setTimeout(()=>termInput.focus(),100);}
+}
+function closeTerminal(){document.getElementById('termWidget').classList.remove('open');}
+
+// ── MUSIC ──
+const tracks=[
+  {name:'Feathers',artist:'Nujabes',emoji:'🌸',duration:312},
+  {name:'Aruarian Dance',artist:'Nujabes',emoji:'🌊',duration:258},
+  {name:'Horizon',artist:'Idealism',emoji:'🌅',duration:187},
+  {name:'Late Night Coding',artist:'Lofi Girl',emoji:'🌙',duration:243},
+  {name:'coffee shop at 3am',artist:'ChillHop Music',emoji:'☕',duration:198},
+  {name:'Tokyo Lights',artist:'LilyPichu',emoji:'🗼',duration:221},
+  {name:'inner light',artist:'keshi',emoji:'✨',duration:195},
+];
+let currentTrack=0,isPlaying=false,elapsed=0,musicInterval=null;
+
+function fmt(s){return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+
+function renderPlaylist(){
+  document.getElementById('playlist').innerHTML=tracks.map((t,i)=>`<div class="playlist-item ${i===currentTrack?'active':''}" onclick="selectTrack(${i})"><span>${t.emoji} ${t.name}</span><span class="dur">${fmt(t.duration)}</span></div>`).join('');
+}
+
+function updateMusicUI(){
+  const t=tracks[currentTrack];
+  document.getElementById('trackName').textContent=t.name;
+  document.getElementById('trackArtist').textContent=t.artist;
+  document.getElementById('musicEmoji').textContent=t.emoji;
+  document.getElementById('timeDuration').textContent=fmt(t.duration);
+  document.getElementById('timeElapsed').textContent=fmt(elapsed);
+  document.getElementById('musicProgress').style.width=(elapsed/t.duration*100)+'%';
+  document.getElementById('playBtn').textContent=isPlaying?'⏸':'▶';
+  renderPlaylist();
+}
+
+function togglePlay(){
+  isPlaying=!isPlaying;
+  if(isPlaying){musicInterval=setInterval(()=>{elapsed++;if(elapsed>=tracks[currentTrack].duration)nextTrack();updateMusicUI();},1000);}
+  else clearInterval(musicInterval);
+  updateMusicUI();
+}
+function selectTrack(i){currentTrack=i;elapsed=0;if(isPlaying){clearInterval(musicInterval);isPlaying=false;}updateMusicUI();}
+function nextTrack(){selectTrack((currentTrack+1)%tracks.length);}
+function prevTrack(){selectTrack((currentTrack-1+tracks.length)%tracks.length);}
+function seekMusic(e){const rect=e.currentTarget.getBoundingClientRect();elapsed=Math.round((e.clientX-rect.left)/rect.width*tracks[currentTrack].duration);updateMusicUI();}
+function toggleMusic(){const w=document.getElementById('musicWidget');w.classList.toggle('open');if(w.classList.contains('open'))updateMusicUI();}
+
+updateMusicUI();
+</script>
 </body>
 </html>
